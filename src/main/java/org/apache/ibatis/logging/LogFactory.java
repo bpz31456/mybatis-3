@@ -18,6 +18,7 @@ package org.apache.ibatis.logging;
 import java.lang.reflect.Constructor;
 
 /**
+ * 日志工厂
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
@@ -30,45 +31,21 @@ public final class LogFactory {
 
   private static Constructor<? extends Log> logConstructor;
 
+  /**
+   * 第一次调用是，去尝试实例化几种常见日志接口
+   */
   static {
-    tryImplementation(new Runnable() {
-      @Override
-      public void run() {
-        useSlf4jLogging();
-      }
-    });
-    tryImplementation(new Runnable() {
-      @Override
-      public void run() {
-        useCommonsLogging();
-      }
-    });
-    tryImplementation(new Runnable() {
-      @Override
-      public void run() {
-        useLog4J2Logging();
-      }
-    });
-    tryImplementation(new Runnable() {
-      @Override
-      public void run() {
-        useLog4JLogging();
-      }
-    });
-    tryImplementation(new Runnable() {
-      @Override
-      public void run() {
-        useJdkLogging();
-      }
-    });
-    tryImplementation(new Runnable() {
-      @Override
-      public void run() {
-        useNoLogging();
-      }
-    });
+    tryImplementation(LogFactory::useSlf4jLogging);
+    tryImplementation(LogFactory::useCommonsLogging);
+    tryImplementation(LogFactory::useLog4J2Logging);
+    tryImplementation(LogFactory::useLog4JLogging);
+    tryImplementation(LogFactory::useJdkLogging);
+    tryImplementation(LogFactory::useNoLogging);
   }
 
+    /**
+     * 不能被new
+     */
   private LogFactory() {
     // disable construction
   }
@@ -127,6 +104,10 @@ public final class LogFactory {
     }
   }
 
+    /**
+     * 统一日志实体化
+     * @param implClass
+     */
   private static void setImplementation(Class<? extends Log> implClass) {
     try {
       Constructor<? extends Log> candidate = implClass.getConstructor(String.class);

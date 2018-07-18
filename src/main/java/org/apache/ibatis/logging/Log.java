@@ -16,6 +16,7 @@
 package org.apache.ibatis.logging;
 
 /**
+ * 统一日志接口，定义了error，debug，trace，warn 日志级别
  * @author Clinton Begin
  */
 public interface Log {

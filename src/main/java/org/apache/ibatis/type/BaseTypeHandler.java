@@ -24,30 +24,45 @@ import org.apache.ibatis.executor.result.ResultMapException;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 类型处理基类，模版模式（所有abstract方法都是钩子方法），方便子类调用
+ *
  * @author Clinton Begin
  * @author Simone Tripodi
  */
 public abstract class BaseTypeHandler<T> extends TypeReference<T> implements TypeHandler<T> {
-
+    /**
+     * 配置文件 mybatis.xml副本
+     */
   protected Configuration configuration;
 
   public void setConfiguration(Configuration c) {
     this.configuration = c;
   }
 
+    /**
+     * 对sql声明（PreparedStatement ps）设置参数
+     * @param ps
+     * @param i PreparedStatement ps中“?”下标
+     * @param parameter
+     * @param jdbcType
+     * @throws SQLException
+     */
   @Override
   public void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
-    if (parameter == null) {
+    //参数为空
+      if (parameter == null) {
       if (jdbcType == null) {
         throw new TypeException("JDBC requires that the JdbcType must be specified for all nullable parameters.");
       }
       try {
+          //直接调用了ps.setNull
         ps.setNull(i, jdbcType.TYPE_CODE);
       } catch (SQLException e) {
         throw new TypeException("Error setting null for parameter #" + i + " with JdbcType " + jdbcType + " . " +
                 "Try setting a different JdbcType for this parameter or a different jdbcTypeForNull configuration property. " +
                 "Cause: " + e, e);
       }
+      //参数不为空
     } else {
       try {
         setNonNullParameter(ps, i, parameter, jdbcType);
@@ -59,6 +74,13 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
     }
   }
 
+    /**
+     * 获取的结果集的某一个单元格的数据，并非为一个collection
+     * @param rs
+     * @param columnName
+     * @return
+     * @throws SQLException
+     */
   @Override
   public T getResult(ResultSet rs, String columnName) throws SQLException {
     T result;
@@ -74,6 +96,13 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
     }
   }
 
+    /**
+     * 获取的结果集的某一个单元格的数据，并非为一个collection
+     * @param rs
+     * @param columnIndex
+     * @return
+     * @throws SQLException
+     */
   @Override
   public T getResult(ResultSet rs, int columnIndex) throws SQLException {
     T result;
@@ -89,6 +118,13 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
     }
   }
 
+    /**
+     * 调用过程时，返回的结果(CallableStatement extent PreparedStatement)
+     * @param cs
+     * @param columnIndex
+     * @return
+     * @throws SQLException
+     */
   @Override
   public T getResult(CallableStatement cs, int columnIndex) throws SQLException {
     T result;

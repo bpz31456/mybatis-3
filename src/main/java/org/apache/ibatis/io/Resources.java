@@ -250,7 +250,7 @@ public class Resources {
     return props;
   }
 
-  /*
+  /**
    * Loads a class
    *
    * @param className - the class to fetch

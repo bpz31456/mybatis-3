@@ -78,7 +78,7 @@ public class ClassLoaderWrapper {
     return getResourceAsStream(resource, getClassLoaders(classLoader));
   }
 
-  /*
+  /**
    * Find a class on the classpath (or die trying)
    *
    * @param name - the class to look for
@@ -167,7 +167,7 @@ public class ClassLoaderWrapper {
 
   }
 
-  /*
+  /**
    * Attempt to load a class from a group of classloaders
    *
    * @param name        - the class to load

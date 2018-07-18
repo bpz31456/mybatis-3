@@ -22,6 +22,8 @@ import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 对象包装类，三种不同类型的包装类实现
+ * 容器类(Collection)，map类，基础类型(Bean)
  * @author Clinton Begin
  */
 public interface ObjectWrapper {

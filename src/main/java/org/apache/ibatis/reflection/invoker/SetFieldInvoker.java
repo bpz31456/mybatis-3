@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author Clinton Begin
+ * set 方法的执行反射执行体，直接field.set
  */
 public class SetFieldInvoker implements Invoker {
   private final Field field;

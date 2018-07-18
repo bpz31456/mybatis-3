@@ -143,6 +143,11 @@ public class Reflector {
     }
   }
 
+  /**
+   * 在添加get方法时，1.保存get方法，2保存返回类型
+   * @param name
+   * @param method
+   */
   private void addGetMethod(String name, Method method) {
     if (isValidPropertyName(name)) {
       getMethods.put(name, new MethodInvoker(method));
@@ -222,6 +227,11 @@ public class Reflector {
         + paramType2.getName() + "'.");
   }
 
+  /**
+   * 在添加set方法时，1.保存set方法，2.保存set类型
+   * @param name
+   * @param method
+   */
   private void addSetMethod(String name, Method method) {
     if (isValidPropertyName(name)) {
       setMethods.put(name, new MethodInvoker(method));
@@ -281,6 +291,10 @@ public class Reflector {
     }
   }
 
+    /**
+     * 在添加set属性时，1。添加set方法，2。添加当前field的类型
+     * @param field
+     */
   private void addSetField(Field field) {
     if (isValidPropertyName(field.getName())) {
       setMethods.put(field.getName(), new SetFieldInvoker(field));
@@ -289,6 +303,10 @@ public class Reflector {
     }
   }
 
+    /**
+     * 在添加get属性时，1.添加get方法，2.添加当前field的类型
+     * @param field
+     */
   private void addGetField(Field field) {
     if (isValidPropertyName(field.getName())) {
       getMethods.put(field.getName(), new GetFieldInvoker(field));
@@ -301,7 +319,7 @@ public class Reflector {
     return !(name.startsWith("$") || "serialVersionUID".equals(name) || "class".equals(name));
   }
 
-  /*
+  /**
    * This method returns an array containing all methods
    * declared in this class and any superclass.
    * We use this method, instead of the simpler Class.getMethods(),

@@ -19,11 +19,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * 方法的执行体,method.invoke
  * @author Clinton Begin
  */
 public class MethodInvoker implements Invoker {
 
   private final Class<?> type;
+    /**
+     * 虽然是final属性，但是，可以通过MethodInvoker.class.getDeclaredField("method")得到
+     * 目前已知的不能被反射访问到的限制是 final+static
+     */
   private final Method method;
 
   public MethodInvoker(Method method) {

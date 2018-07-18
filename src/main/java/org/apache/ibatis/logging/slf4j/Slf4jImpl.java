@@ -22,6 +22,7 @@ import org.slf4j.Marker;
 import org.slf4j.spi.LocationAwareLogger;
 
 /**
+ * 实例框架
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
@@ -29,19 +30,22 @@ public class Slf4jImpl implements Log {
 
   private Log log;
 
+    /**
+     * 构造器，被LogFactory反射，构造器执行初始化
+     * @param clazz
+     */
   public Slf4jImpl(String clazz) {
     Logger logger = LoggerFactory.getLogger(clazz);
 
     if (logger instanceof LocationAwareLogger) {
       try {
         // check for slf4j >= 1.6 method signature
+          //通过抛出异常来处理
         logger.getClass().getMethod("log", Marker.class, String.class, int.class, String.class, Object[].class, Throwable.class);
         log = new Slf4jLocationAwareLoggerImpl((LocationAwareLogger) logger);
         return;
-      } catch (SecurityException e) {
-        // fail-back to Slf4jLoggerImpl
-      } catch (NoSuchMethodException e) {
-        // fail-back to Slf4jLoggerImpl
+      } catch (SecurityException | NoSuchMethodException e) {
+        // ignore fail-back to Slf4jLoggerImpl
       }
     }
 

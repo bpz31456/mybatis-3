@@ -19,6 +19,7 @@ import java.util.Iterator;
 
 /**
  * @author Clinton Begin
+ * 分词器，person[1].sex => name=person ,indexedName=person[1],index = 1,children=sex
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
   private String name;
@@ -28,16 +29,20 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
 
   public PropertyTokenizer(String fullname) {
     int delim = fullname.indexOf('.');
+    //发现了第一个“.”
     if (delim > -1) {
       name = fullname.substring(0, delim);
       children = fullname.substring(delim + 1);
+      //没有出现“.”
     } else {
       name = fullname;
       children = null;
     }
     indexedName = name;
     delim = name.indexOf('[');
+    //存在“[”，既是为集合类型数据
     if (delim > -1) {
+        //集合类型数据下标
       index = name.substring(delim + 1, name.length() - 1);
       name = name.substring(0, delim);
     }

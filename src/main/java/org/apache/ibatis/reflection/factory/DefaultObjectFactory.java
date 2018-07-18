@@ -58,6 +58,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
   private  <T> T instantiateClass(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
     try {
       Constructor<T> constructor;
+      //这里无参构造函数
       if (constructorArgTypes == null || constructorArgs == null) {
         constructor = type.getDeclaredConstructor();
         if (!constructor.isAccessible()) {
@@ -65,26 +66,31 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
         }
         return constructor.newInstance();
       }
+      //带参构造函数
       constructor = type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[constructorArgTypes.size()]));
       if (!constructor.isAccessible()) {
         constructor.setAccessible(true);
       }
       return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
     } catch (Exception e) {
+        //异常情况捕获，参数类型记录
       StringBuilder argTypes = new StringBuilder();
       if (constructorArgTypes != null && !constructorArgTypes.isEmpty()) {
         for (Class<?> argType : constructorArgTypes) {
           argTypes.append(argType.getSimpleName());
           argTypes.append(",");
         }
+        //删除最后一个“,”
         argTypes.deleteCharAt(argTypes.length() - 1); // remove trailing ,
       }
+      //参数值记录
       StringBuilder argValues = new StringBuilder();
       if (constructorArgs != null && !constructorArgs.isEmpty()) {
         for (Object argValue : constructorArgs) {
           argValues.append(String.valueOf(argValue));
           argValues.append(",");
         }
+        //删除最后一个“,”
         argValues.deleteCharAt(argValues.length() - 1); // remove trailing ,
       }
       throw new ReflectionException("Error instantiating " + type + " with invalid types (" + argTypes + ") or values (" + argValues + "). Cause: " + e, e);

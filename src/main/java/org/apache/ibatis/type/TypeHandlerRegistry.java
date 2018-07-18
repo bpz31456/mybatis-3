@@ -38,15 +38,19 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.reflection.Jdk;
 
 /**
+ * 类型注册
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
 public final class TypeHandlerRegistry {
+    //三个Map存储结构，用空间换时间，时间复杂度O(1)
 
   private final Map<JdbcType, TypeHandler<?>> JDBC_TYPE_HANDLER_MAP = new EnumMap<JdbcType, TypeHandler<?>>(JdbcType.class);
+  /**一个String -> 数据库中的char,vchar**/
   private final Map<Type, Map<JdbcType, TypeHandler<?>>> TYPE_HANDLER_MAP = new ConcurrentHashMap<Type, Map<JdbcType, TypeHandler<?>>>();
-  private final TypeHandler<Object> UNKNOWN_TYPE_HANDLER = new UnknownTypeHandler(this);
   private final Map<Class<?>, TypeHandler<?>> ALL_TYPE_HANDLERS_MAP = new HashMap<Class<?>, TypeHandler<?>>();
+
+  private final TypeHandler<Object> UNKNOWN_TYPE_HANDLER = new UnknownTypeHandler(this);
 
   private static final Map<JdbcType, TypeHandler<?>> NULL_TYPE_HANDLER_MAP = new HashMap<JdbcType, TypeHandler<?>>();
 
@@ -83,6 +87,7 @@ public final class TypeHandlerRegistry {
 
     register(Reader.class, new ClobReaderTypeHandler());
     register(String.class, new StringTypeHandler());
+
     register(String.class, JdbcType.CHAR, new StringTypeHandler());
     register(String.class, JdbcType.CLOB, new ClobTypeHandler());
     register(String.class, JdbcType.VARCHAR, new StringTypeHandler());
@@ -90,6 +95,7 @@ public final class TypeHandlerRegistry {
     register(String.class, JdbcType.NVARCHAR, new NStringTypeHandler());
     register(String.class, JdbcType.NCHAR, new NStringTypeHandler());
     register(String.class, JdbcType.NCLOB, new NClobTypeHandler());
+
     register(JdbcType.CHAR, new StringTypeHandler());
     register(JdbcType.VARCHAR, new StringTypeHandler());
     register(JdbcType.CLOB, new ClobTypeHandler());
@@ -194,11 +200,19 @@ public final class TypeHandlerRegistry {
     return getTypeHandler(javaTypeReference.getRawType(), jdbcType);
   }
 
+    /**
+     * 关键方法
+     * @param type
+     * @param jdbcType
+     * @param <T>
+     * @return
+     */
   @SuppressWarnings("unchecked")
   private <T> TypeHandler<T> getTypeHandler(Type type, JdbcType jdbcType) {
     if (ParamMap.class.equals(type)) {
       return null;
     }
+    //一个type可能对应多个jdbcType,一个jdbcType对应一个TypeHandler
     Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = getJdbcHandlerMap(type);
     TypeHandler<?> handler = null;
     if (jdbcHandlerMap != null) {
@@ -215,12 +229,20 @@ public final class TypeHandlerRegistry {
     return (TypeHandler<T>) handler;
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+
+    /**
+     * 根据一个type得到一个jdbcHandlerMap
+      * @param type
+     * @return
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
   private Map<JdbcType, TypeHandler<?>> getJdbcHandlerMap(Type type) {
     Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = TYPE_HANDLER_MAP.get(type);
+    //没有被注册
     if (NULL_TYPE_HANDLER_MAP.equals(jdbcHandlerMap)) {
       return null;
     }
+    //Class类型的type被注册，没有找到jdbcHandlerMap
     if (jdbcHandlerMap == null && type instanceof Class) {
       Class<?> clazz = (Class<?>) type;
       if (clazz.isEnum()) {
@@ -230,9 +252,11 @@ public final class TypeHandlerRegistry {
           return TYPE_HANDLER_MAP.get(clazz);
         }
       } else {
+          //通过超类查找
         jdbcHandlerMap = getJdbcHandlerMapForSuperclass(clazz);
       }
     }
+    //可能为空Handler，或者得到的是父类的jdbcHandlerMap，缓存起来,并能在下一次被注册时，重新缓存
     TYPE_HANDLER_MAP.put(type, jdbcHandlerMap == null ? NULL_TYPE_HANDLER_MAP : jdbcHandlerMap);
     return jdbcHandlerMap;
   }
@@ -256,11 +280,18 @@ public final class TypeHandlerRegistry {
     return null;
   }
 
+    /**
+     * 根据超类查找HandlerMap
+     * @param clazz
+     * @return
+     */
   private Map<JdbcType, TypeHandler<?>> getJdbcHandlerMapForSuperclass(Class<?> clazz) {
     Class<?> superclass =  clazz.getSuperclass();
+    //没有超类，就返回null
     if (superclass == null || Object.class.equals(superclass)) {
       return null;
     }
+    //在TYPE_HANDLER_MAP中递归查找超类的HandlerMap
     Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = TYPE_HANDLER_MAP.get(superclass);
     if (jdbcHandlerMap != null) {
       return jdbcHandlerMap;
@@ -269,11 +300,17 @@ public final class TypeHandlerRegistry {
     }
   }
 
+    /**
+     * 选择唯一一个
+     * @param jdbcHandlerMap
+     * @return
+     */
   private TypeHandler<?> pickSoleHandler(Map<JdbcType, TypeHandler<?>> jdbcHandlerMap) {
     TypeHandler<?> soleHandler = null;
     for (TypeHandler<?> handler : jdbcHandlerMap.values()) {
       if (soleHandler == null) {
         soleHandler = handler;
+        //在一个jdbcHandlerMap中包含多个相同的Handler被注册
       } else if (!handler.getClass().equals(soleHandler.getClass())) {
         // More than one type handlers registered.
         return null;
@@ -351,26 +388,28 @@ public final class TypeHandlerRegistry {
     register((Type) type, jdbcType, handler);
   }
 
+    /**
+     * 最终方法
+     * @param javaType
+     * @param jdbcType
+     * @param handler
+     */
   private void register(Type javaType, JdbcType jdbcType, TypeHandler<?> handler) {
     if (javaType != null) {
-      Map<JdbcType, TypeHandler<?>> map = TYPE_HANDLER_MAP.get(javaType);
-      if (map == null) {
-        map = new HashMap<JdbcType, TypeHandler<?>>();
-        TYPE_HANDLER_MAP.put(javaType, map);
-      }
-      map.put(jdbcType, handler);
+        Map<JdbcType, TypeHandler<?>> map = TYPE_HANDLER_MAP.computeIfAbsent(javaType, k -> new HashMap<>(2<<3));
+        map.put(jdbcType, handler);
     }
     ALL_TYPE_HANDLERS_MAP.put(handler.getClass(), handler);
   }
 
-  //
-  // REGISTER CLASS
-  //
-
-  // Only handler type
-
+    /**
+     * REGISTER CLASS
+     * Only handler type
+     * @param typeHandlerClass
+     */
   public void register(Class<?> typeHandlerClass) {
     boolean mappedTypeFound = false;
+    //通过注解注册handler映射
     MappedTypes mappedTypes = typeHandlerClass.getAnnotation(MappedTypes.class);
     if (mappedTypes != null) {
       for (Class<?> javaTypeClass : mappedTypes.value()) {
@@ -378,6 +417,7 @@ public final class TypeHandlerRegistry {
         mappedTypeFound = true;
       }
     }
+    //没有找到注解
     if (!mappedTypeFound) {
       register(getInstance(null, typeHandlerClass));
     }

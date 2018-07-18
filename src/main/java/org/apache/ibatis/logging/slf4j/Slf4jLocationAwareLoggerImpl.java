@@ -22,6 +22,7 @@ import org.slf4j.MarkerFactory;
 import org.slf4j.spi.LocationAwareLogger;
 
 /**
+ * slf4j日志实体的包装类
  * @author Eduardo Macarron
  */
 class Slf4jLocationAwareLoggerImpl implements Log {

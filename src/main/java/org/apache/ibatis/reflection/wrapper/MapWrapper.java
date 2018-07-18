@@ -25,6 +25,7 @@ import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * Map对象包装类
  * @author Clinton Begin
  */
 public class MapWrapper extends BaseWrapper {
@@ -38,6 +39,7 @@ public class MapWrapper extends BaseWrapper {
 
   @Override
   public Object get(PropertyTokenizer prop) {
+    //name[index].child
     if (prop.getIndex() != null) {
       Object collection = resolveCollection(prop, map);
       return getCollectionValue(prop, collection);
@@ -140,6 +142,10 @@ public class MapWrapper extends BaseWrapper {
     return MetaObject.forObject(map, metaObject.getObjectFactory(), metaObject.getObjectWrapperFactory(), metaObject.getReflectorFactory());
   }
 
+  /**
+   * 容器类型专属操作
+   * @return
+   */
   @Override
   public boolean isCollection() {
     return false;

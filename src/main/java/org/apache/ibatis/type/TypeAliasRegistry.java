@@ -33,6 +33,7 @@ import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * 类型别名注册
  * @author Clinton Begin
  */
 public class TypeAliasRegistry {
@@ -125,6 +126,11 @@ public class TypeAliasRegistry {
     registerAliases(packageName, Object.class);
   }
 
+    /**
+     * 批量别名
+     * @param packageName
+     * @param superType
+     */
   public void registerAliases(String packageName, Class<?> superType){
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<Class<?>>();
     resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
@@ -138,6 +144,10 @@ public class TypeAliasRegistry {
     }
   }
 
+    /**
+     * 根据注解添加别名
+     * @param type
+     */
   public void registerAlias(Class<?> type) {
     String alias = type.getSimpleName();
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
@@ -147,6 +157,11 @@ public class TypeAliasRegistry {
     registerAlias(alias, type);
   }
 
+    /**
+     * 注册一个别名
+     * @param alias
+     * @param value
+     */
   public void registerAlias(String alias, Class<?> value) {
     if (alias == null) {
       throw new TypeException("The parameter alias cannot be null");

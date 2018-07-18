@@ -23,11 +23,17 @@ import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 基础对象包装类,(bean,map)
+ * 就是一个父类方法，传递给子类方法
+ * 并不是模版方法，模版方法需要钩子函数
  * @author Clinton Begin
  */
 public abstract class BaseWrapper implements ObjectWrapper {
 
   protected static final Object[] NO_ARGUMENTS = new Object[0];
+    /**
+     *  对象元数据，子类共有
+     */
   protected final MetaObject metaObject;
 
   protected BaseWrapper(MetaObject metaObject) {
@@ -38,6 +44,7 @@ public abstract class BaseWrapper implements ObjectWrapper {
     if ("".equals(prop.getName())) {
       return object;
     } else {
+        //得到的collection
       return metaObject.getValue(prop.getName());
     }
   }

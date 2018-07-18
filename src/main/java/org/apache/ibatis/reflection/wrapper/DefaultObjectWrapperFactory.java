@@ -20,9 +20,15 @@ import org.apache.ibatis.reflection.ReflectionException;
 
 /**
  * @author Clinton Begin
+ * 可以在mybatis.xml的配置信息中配置自定义ObjectWrapperFactory实现类
  */
 public class DefaultObjectWrapperFactory implements ObjectWrapperFactory {
 
+    /**
+     * 提供缓存功能
+     * @param object
+     * @return
+     */
   @Override
   public boolean hasWrapperFor(Object object) {
     return false;

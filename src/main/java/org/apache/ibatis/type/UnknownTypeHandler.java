@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * 未知类型处理，当未知类型出现时，最坏情况出现的是ObjectHandler
  * @author Clinton Begin
  */
 public class UnknownTypeHandler extends BaseTypeHandler<Object> {
@@ -38,9 +39,18 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
     this.typeHandlerRegistry = typeHandlerRegistry;
   }
 
+    /**
+     * 如果没有注册，就使用OBJECT_Handler
+     * @param ps
+     * @param i
+     * @param parameter
+     * @param jdbcType
+     * @throws SQLException
+     */
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType)
       throws SQLException {
+      //直接知道jdbcType的,
     TypeHandler handler = resolveTypeHandler(parameter, jdbcType);
     handler.setParameter(ps, i, parameter, jdbcType);
   }
@@ -48,6 +58,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
   @Override
   public Object getNullableResult(ResultSet rs, String columnName)
       throws SQLException {
+      //不知道jdbcType
     TypeHandler<?> handler = resolveTypeHandler(rs, columnName);
     return handler.getResult(rs, columnName);
   }
@@ -55,6 +66,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
   @Override
   public Object getNullableResult(ResultSet rs, int columnIndex)
       throws SQLException {
+      //不知道jdbcType
     TypeHandler<?> handler = resolveTypeHandler(rs.getMetaData(), columnIndex);
     if (handler == null || handler instanceof UnknownTypeHandler) {
       handler = OBJECT_TYPE_HANDLER;
@@ -86,15 +98,20 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
     try {
       Map<String,Integer> columnIndexLookup;
       columnIndexLookup = new HashMap<String,Integer>();
+      //根据rs.getMetaData()得到元数据（包括，表名，列名，列数 等）
       ResultSetMetaData rsmd = rs.getMetaData();
+      //得到多少列
       int count = rsmd.getColumnCount();
       for (int i=1; i <= count; i++) {
         String name = rsmd.getColumnName(i);
+        //记录每一列的列名
         columnIndexLookup.put(name,i);
       }
+      //得到当前需要得到字段名（列数）
       Integer columnIndex = columnIndexLookup.get(column);
       TypeHandler<?> handler = null;
       if (columnIndex != null) {
+          //根据下标获取默认的jdbcType和javaType计算出对应的handler
         handler = resolveTypeHandler(rsmd, columnIndex);
       }
       if (handler == null || handler instanceof UnknownTypeHandler) {
@@ -106,6 +123,13 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
     }
   }
 
+    /**
+     * 根据数据元列下标判断handler
+     * @param rsmd
+     * @param columnIndex
+     * @return
+     * @throws SQLException
+     */
   private TypeHandler<?> resolveTypeHandler(ResultSetMetaData rsmd, Integer columnIndex) throws SQLException {
     TypeHandler<?> handler = null;
     JdbcType jdbcType = safeGetJdbcTypeForColumn(rsmd, columnIndex);
@@ -120,6 +144,12 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
     return handler;
   }
 
+    /**
+     * 根据预定义的jdbcTypes（java.sql.Types）判断注册的(org.apache.ibatis.type.JdbcType)
+     * @param rsmd
+     * @param columnIndex
+     * @return
+     */
   private JdbcType safeGetJdbcTypeForColumn(ResultSetMetaData rsmd, Integer columnIndex) {
     try {
       return JdbcType.forCode(rsmd.getColumnType(columnIndex));
@@ -128,8 +158,16 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
     }
   }
 
+    /**
+     * 根据列index查找对应的数据类型，javax.sql.rowset.RowSetMetaDataImpl.getColumnClassName()对应
+     * @param rsmd
+     * @param columnIndex
+     * @return
+     */
   private Class<?> safeGetClassForColumn(ResultSetMetaData rsmd, Integer columnIndex) {
     try {
+        //javax.sql.rowset.RowSetMetaDataImpl.getColumnType 查找java.sql.Types
+        //根据Class的全限定名找到类
       return Resources.classForName(rsmd.getColumnClassName(columnIndex));
     } catch (Exception e) {
       return null;

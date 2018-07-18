@@ -20,6 +20,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
+ * log4j日志框架实例化
  * @author Eduardo Macarron
  */
 public class Log4jImpl implements Log {

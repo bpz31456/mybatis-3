@@ -23,10 +23,13 @@ import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 容器对象包装类型
  * @author Clinton Begin
  */
 public class CollectionWrapper implements ObjectWrapper {
-
+    /**
+     * List,Set,Queue,Bag等
+     */
   private final Collection<Object> object;
 
   public CollectionWrapper(MetaObject metaObject, Collection<Object> object) {

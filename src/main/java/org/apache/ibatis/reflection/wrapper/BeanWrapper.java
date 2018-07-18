@@ -27,6 +27,7 @@ import org.apache.ibatis.reflection.invoker.Invoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * Bean对象包装类
  * @author Clinton Begin
  */
 public class BeanWrapper extends BaseWrapper {
@@ -60,25 +61,45 @@ public class BeanWrapper extends BaseWrapper {
     }
   }
 
+  /**
+   * 根据属性表达式，得到属性
+   * @param name
+   * @param useCamelCaseMapping
+   * @return
+   */
   @Override
   public String findProperty(String name, boolean useCamelCaseMapping) {
     return metaClass.findProperty(name, useCamelCaseMapping);
   }
 
+    /**
+     * 得到所有getter方法
+     * @return
+     */
   @Override
   public String[] getGetterNames() {
     return metaClass.getGetterNames();
   }
 
+    /**
+     * 得到所有setter方法
+     * @return
+     */
   @Override
   public String[] getSetterNames() {
     return metaClass.getSetterNames();
   }
 
+    /**
+     * 得到setter的类型
+     * @param name
+     * @return
+     */
   @Override
   public Class<?> getSetterType(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
+        //根据name[i]得到MetaObject
       MetaObject metaValue = metaObject.metaObjectForProperty(prop.getIndexedName());
       if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
         return metaClass.getSetterType(name);
