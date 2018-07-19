@@ -29,7 +29,7 @@ import org.apache.ibatis.reflection.ExceptionUtil;
  * 
  * @author Clinton Begin
  * @author Eduardo Macarron
- * 
+ * 声明日志
  */
 public final class StatementLogger extends BaseJdbcLogger implements InvocationHandler {
 

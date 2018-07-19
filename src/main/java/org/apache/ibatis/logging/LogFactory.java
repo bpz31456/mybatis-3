@@ -111,6 +111,7 @@ public final class LogFactory {
   private static void setImplementation(Class<? extends Log> implClass) {
     try {
       Constructor<? extends Log> candidate = implClass.getConstructor(String.class);
+      //具体实例化
       Log log = candidate.newInstance(LogFactory.class.getName());
       if (log.isDebugEnabled()) {
         log.debug("Logging initialized using '" + implClass + "' adapter.");

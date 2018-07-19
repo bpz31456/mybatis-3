@@ -30,7 +30,7 @@ import org.apache.ibatis.reflection.ExceptionUtil;
  * 
  * @author Clinton Begin
  * @author Eduardo Macarron
- * 
+ * 连接日志信息，Connection的代理对象
  */
 public final class ConnectionLogger extends BaseJdbcLogger implements InvocationHandler {
 
@@ -41,20 +41,32 @@ public final class ConnectionLogger extends BaseJdbcLogger implements Invocation
     this.connection = conn;
   }
 
+    /**
+     * 当前代理方法中继续生成一个日志代理类
+     * @param proxy
+     * @param method
+     * @param params
+     * @return
+     * @throws Throwable
+     */
   @Override
   public Object invoke(Object proxy, Method method, Object[] params)
       throws Throwable {
     try {
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, params);
-      }    
+      }
+      //java.sql.Connection.prepareStatement(java.lang.String, int, int, int)
       if ("prepareStatement".equals(method.getName())) {
         if (isDebugEnabled()) {
           debug(" Preparing: " + removeBreakingWhitespace((String) params[0]), true);
-        }        
+        }
+        //执行了prepareStatement()方法，产生了PreparedStatement
         PreparedStatement stmt = (PreparedStatement) method.invoke(connection, params);
+        //通过产生的PreparedStatement，产生一个代理
         stmt = PreparedStatementLogger.newInstance(stmt, statementLog, queryStack);
         return stmt;
+        //java.sql.Connection.prepareCall(java.lang.String, int, int, int)
       } else if ("prepareCall".equals(method.getName())) {
         if (isDebugEnabled()) {
           debug(" Preparing: " + removeBreakingWhitespace((String) params[0]), true);
@@ -62,6 +74,7 @@ public final class ConnectionLogger extends BaseJdbcLogger implements Invocation
         PreparedStatement stmt = (PreparedStatement) method.invoke(connection, params);
         stmt = PreparedStatementLogger.newInstance(stmt, statementLog, queryStack);
         return stmt;
+        //java.sql.Connection.createStatement()
       } else if ("createStatement".equals(method.getName())) {
         Statement stmt = (Statement) method.invoke(connection, params);
         stmt = StatementLogger.newInstance(stmt, statementLog, queryStack);
@@ -74,9 +87,9 @@ public final class ConnectionLogger extends BaseJdbcLogger implements Invocation
     }
   }
 
-  /*
+  /**
    * Creates a logging version of a connection
-   *
+   * 通过代理模式，动态建立了Connection的代理对象
    * @param conn - the original connection
    * @return - the connection with logging
    */
@@ -86,7 +99,7 @@ public final class ConnectionLogger extends BaseJdbcLogger implements Invocation
     return (Connection) Proxy.newProxyInstance(cl, new Class[]{Connection.class}, handler);
   }
 
-  /*
+  /**
    * return the wrapped connection
    *
    * @return the connection

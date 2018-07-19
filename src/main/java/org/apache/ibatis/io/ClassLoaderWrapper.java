@@ -30,13 +30,14 @@ public class ClassLoaderWrapper {
 
   ClassLoaderWrapper() {
     try {
+      //系统的(ApplicationClassLoader)
       systemClassLoader = ClassLoader.getSystemClassLoader();
     } catch (SecurityException ignored) {
       // AccessControlException on Google App Engine   
     }
   }
   
-  /*
+  /**
    * Get a resource as a URL using the current class path
    *
    * @param resource - the resource to locate
@@ -46,7 +47,7 @@ public class ClassLoaderWrapper {
     return getResourceAsURL(resource, getClassLoaders(null));
   }
 
-  /*
+  /**
    * Get a resource from the classpath, starting with a specific class loader
    *
    * @param resource    - the resource to find
@@ -201,6 +202,11 @@ public class ClassLoaderWrapper {
 
   }
 
+    /**
+     * 可以使用的类加载器
+     * @param classLoader
+     * @return
+     */
   ClassLoader[] getClassLoaders(ClassLoader classLoader) {
     return new ClassLoader[]{
         classLoader,

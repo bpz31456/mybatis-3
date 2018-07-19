@@ -32,9 +32,13 @@ public class Slf4jImpl implements Log {
 
     /**
      * 构造器，被LogFactory反射，构造器执行初始化
+     * Slf4jImpl -> 包装为Slf4jLocationAwareLoggerImpl或Slf4jLoggerImpl
      * @param clazz
      */
   public Slf4jImpl(String clazz) {
+      /**
+       * 调用了org.slf4j.LoggerFactory生成一个监听org.apache.ibatis.logging.LogFactory.class的slf4j的实例
+       */
     Logger logger = LoggerFactory.getLogger(clazz);
 
     if (logger instanceof LocationAwareLogger) {
