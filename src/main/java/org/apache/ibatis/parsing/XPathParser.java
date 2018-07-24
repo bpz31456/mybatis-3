@@ -120,6 +120,13 @@ public class XPathParser {
     this.document = createDocument(new InputSource(reader));
   }
 
+  /**
+   *
+   * @param inputStream
+   * @param validation
+   * @param variables
+   * @param entityResolver
+   */
   public XPathParser(InputStream inputStream, boolean validation, Properties variables, EntityResolver entityResolver) {
     commonConstructor(validation, variables, entityResolver);
     this.document = createDocument(new InputSource(inputStream));
@@ -260,6 +267,12 @@ public class XPathParser {
     }
   }
 
+    /**
+     * 公共的构造函数
+     * @param validation
+     * @param variables
+     * @param entityResolver
+     */
   private void commonConstructor(boolean validation, Properties variables, EntityResolver entityResolver) {
     this.validation = validation;
     this.entityResolver = entityResolver;

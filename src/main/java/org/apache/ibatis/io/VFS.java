@@ -29,7 +29,7 @@ import org.apache.ibatis.logging.LogFactory;
 
 /**
  * Provides a very simple API for accessing resources within an application server.
- * 
+ *  虚拟文件系统(virtualFileSystem)
  * @author Ben Gunter
  */
 public abstract class VFS {
@@ -64,10 +64,7 @@ public abstract class VFS {
                   " is not valid in this environment.");
             }
           }
-        } catch (InstantiationException e) {
-          log.error("Failed to instantiate " + impl, e);
-          return null;
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
           log.error("Failed to instantiate " + impl, e);
           return null;
         }

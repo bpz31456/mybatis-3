@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
+ * 事务处理
  * Wraps a database connection.
  * Handles the connection lifecycle that comprises: its creation, preparation, commit/rollback and close. 
  *
@@ -54,6 +55,7 @@ public interface Transaction {
   /**
    * Get transaction timeout if set
    * @throws SQLException
+   * @return Integer
    */
   Integer getTimeout() throws SQLException;
   

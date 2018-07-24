@@ -32,24 +32,36 @@ import javax.sql.DataSource;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * 具体产品非池化数据源
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
 public class UnpooledDataSource implements DataSource {
-  
+
+  /**driverClassLoader**/
   private ClassLoader driverClassLoader;
+  /**驱动配置信息**/
   private Properties driverProperties;
+  /**注册过的数据库驱动**/
   private static Map<String, Driver> registeredDrivers = new ConcurrentHashMap<String, Driver>();
 
+  /***当前正在使用的driver*/
   private String driver;
+  /**数据库连接url**/
   private String url;
+  /**用户名**/
   private String username;
+  /**密码**/
   private String password;
 
+  /**是否自动提交**/
   private Boolean autoCommit;
+  /**默认事务隔离等级**/
   private Integer defaultTransactionIsolationLevel;
 
+  /**静态代码块直接注册**/
   static {
+      /**static java.sql.DriverManager#loadInitialDrivers()**/
     Enumeration<Driver> drivers = DriverManager.getDrivers();
     while (drivers.hasMoreElements()) {
       Driver driver = drivers.nextElement();
@@ -60,6 +72,13 @@ public class UnpooledDataSource implements DataSource {
   public UnpooledDataSource() {
   }
 
+    /**
+     * 初始化的DataSource
+     * @param driver
+     * @param url
+     * @param username
+     * @param password
+     */
   public UnpooledDataSource(String driver, String url, String username, String password) {
     this.driver = driver;
     this.url = url;
@@ -182,6 +201,13 @@ public class UnpooledDataSource implements DataSource {
     this.defaultTransactionIsolationLevel = defaultTransactionIsolationLevel;
   }
 
+    /**
+     * 得到Connection
+     * @param username
+     * @param password
+     * @return
+     * @throws SQLException
+     */
   private Connection doGetConnection(String username, String password) throws SQLException {
     Properties props = new Properties();
     if (driverProperties != null) {
@@ -196,14 +222,28 @@ public class UnpooledDataSource implements DataSource {
     return doGetConnection(props);
   }
 
+    /**
+     * 得到Connection
+     * @param properties
+     * @return
+     * @throws SQLException
+     */
   private Connection doGetConnection(Properties properties) throws SQLException {
+      //初始化Driver
     initializeDriver();
+    //每次都会建立一个连接
     Connection connection = DriverManager.getConnection(url, properties);
+    //配置连接
     configureConnection(connection);
     return connection;
   }
 
+    /**
+     * 初始化Driver
+     * @throws SQLException
+     */
   private synchronized void initializeDriver() throws SQLException {
+      //如果当前driver没有被实例化，则通过Class.forName实例化
     if (!registeredDrivers.containsKey(driver)) {
       Class<?> driverType;
       try {
@@ -223,6 +263,11 @@ public class UnpooledDataSource implements DataSource {
     }
   }
 
+    /**
+     * 设置是否默认提交，事务隔离等级
+     * @param conn
+     * @throws SQLException
+     */
   private void configureConnection(Connection conn) throws SQLException {
     if (autoCommit != null && autoCommit != conn.getAutoCommit()) {
       conn.setAutoCommit(autoCommit);
@@ -270,6 +315,7 @@ public class UnpooledDataSource implements DataSource {
     }
 
     // @Override only valid jdk7+
+    @Override
     public Logger getParentLogger() {
       return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     }
@@ -286,6 +332,7 @@ public class UnpooledDataSource implements DataSource {
   }
 
   // @Override only valid jdk7+
+  @Override
   public Logger getParentLogger() {
     // requires JDK version 1.6
     return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);

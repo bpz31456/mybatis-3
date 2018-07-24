@@ -53,11 +53,11 @@ import org.apache.ibatis.logging.LogFactory;
  * resolver.find(new CustomTest(), pkg2);
  * Collection&lt;ActionBean&gt; beans = resolver.getClasses();
  * </pre>
- *
+ * 根据Test查找符合要求的Class
  * @author Tim Fennell
  */
 public class ResolverUtil<T> {
-  /*
+  /**
    * An instance of Log to use for logging in this class.
    */
   private static final Log log = LogFactory.getLog(ResolverUtil.class);

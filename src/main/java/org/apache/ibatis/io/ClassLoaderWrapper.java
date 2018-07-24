@@ -18,7 +18,7 @@ package org.apache.ibatis.io;
 import java.io.InputStream;
 import java.net.URL;
 
-/**
+/**对classLoader进行包装，里面包装了 "a group of classLoaders"
  * A class to wrap access to multiple class loaders making them work as one
  *
  * @author Clinton Begin
@@ -58,7 +58,7 @@ public class ClassLoaderWrapper {
     return getResourceAsURL(resource, getClassLoaders(classLoader));
   }
 
-  /*
+  /**
    * Get a resource from the classpath
    *
    * @param resource - the resource to find
@@ -68,7 +68,7 @@ public class ClassLoaderWrapper {
     return getResourceAsStream(resource, getClassLoaders(null));
   }
 
-  /*
+  /**
    * Get a resource from the classpath, starting with a specific class loader
    *
    * @param resource    - the resource to find
@@ -90,7 +90,7 @@ public class ClassLoaderWrapper {
     return classForName(name, getClassLoaders(null));
   }
 
-  /*
+  /**
    * Find a class on the classpath, starting with a specific classloader (or die trying)
    *
    * @param name        - the class to look for
@@ -102,7 +102,7 @@ public class ClassLoaderWrapper {
     return classForName(name, getClassLoaders(classLoader));
   }
 
-  /*
+  /**
    * Try to get a resource from a group of classloaders
    *
    * @param resource    - the resource to get
@@ -129,7 +129,7 @@ public class ClassLoaderWrapper {
     return null;
   }
 
-  /*
+  /**
    * Get a resource as a URL using the current class path
    *
    * @param resource    - the resource to locate
@@ -158,9 +158,7 @@ public class ClassLoaderWrapper {
         if (null != url) {
           return url;
         }
-
       }
-
     }
 
     // didn't find it anywhere.
@@ -193,13 +191,9 @@ public class ClassLoaderWrapper {
         } catch (ClassNotFoundException e) {
           // we'll ignore this until all classloaders fail to locate the class
         }
-
       }
-
     }
-
     throw new ClassNotFoundException("Cannot find class: " + name);
-
   }
 
     /**

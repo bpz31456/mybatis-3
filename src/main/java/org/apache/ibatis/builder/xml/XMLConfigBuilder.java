@@ -47,7 +47,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
-/**
+/**XML配置
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
@@ -91,6 +91,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     this.parser = parser;
   }
 
+    /**
+     * XML配置解析
+     * @return
+     */
   public Configuration parse() {
     if (parsed) {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
@@ -100,22 +104,36 @@ public class XMLConfigBuilder extends BaseBuilder {
     return configuration;
   }
 
+    /**
+     * Mybatis.xml解析
+     * @param root
+     */
   private void parseConfiguration(XNode root) {
     try {
       //issue #117 read properties first
+        //属性元素解析
       propertiesElement(root.evalNode("properties"));
+      //setting
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       loadCustomVfs(settings);
+      //typeAliases
       typeAliasesElement(root.evalNode("typeAliases"));
+      //plugins
       pluginElement(root.evalNode("plugins"));
+      //objectFactory
       objectFactoryElement(root.evalNode("objectFactory"));
+      //objectWrapperFactory
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
+      //reflectorFactory
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
       environmentsElement(root.evalNode("environments"));
+      //databaseIdProvider
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+      //typeHandlers
       typeHandlerElement(root.evalNode("typeHandlers"));
+      //mappers
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -213,6 +231,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+    /**
+     * 属性元素解析
+     * @param context
+     * @throws Exception
+     */
   private void propertiesElement(XNode context) throws Exception {
     if (context != null) {
       Properties defaults = context.getChildrenAsProperties();
@@ -268,6 +291,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     configuration.setConfigurationFactory(resolveClass(props.getProperty("configurationFactory")));
   }
 
+    /**
+     * environments
+     * @param context
+     * @throws Exception
+     */
   private void environmentsElement(XNode context) throws Exception {
     if (context != null) {
       if (environment == null) {
@@ -275,8 +303,11 @@ public class XMLConfigBuilder extends BaseBuilder {
       }
       for (XNode child : context.getChildren()) {
         String id = child.getStringAttribute("id");
+        //查找"environments"节点
         if (isSpecifiedEnvironment(id)) {
+            //事务管理器
           TransactionFactory txFactory = transactionManagerElement(child.evalNode("transactionManager"));
+          //数据源
           DataSourceFactory dsFactory = dataSourceElement(child.evalNode("dataSource"));
           DataSource dataSource = dsFactory.getDataSource();
           Environment.Builder environmentBuilder = new Environment.Builder(id)
@@ -318,6 +349,12 @@ public class XMLConfigBuilder extends BaseBuilder {
     throw new BuilderException("Environment declaration requires a TransactionFactory.");
   }
 
+    /**
+     * 数据源factory
+     * @param context
+     * @return
+     * @throws Exception
+     */
   private DataSourceFactory dataSourceElement(XNode context) throws Exception {
     if (context != null) {
       String type = context.getStringAttribute("type");

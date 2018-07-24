@@ -19,14 +19,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 连接池状态，配合PoolConnection使用
  * @author Clinton Begin
  */
 public class PoolState {
 
   protected PooledDataSource dataSource;
 
+  /**
+   * 闲置队列，List
+   */
   protected final List<PooledConnection> idleConnections = new ArrayList<PooledConnection>();
+    /**
+     * 活动队列,List
+     */
   protected final List<PooledConnection> activeConnections = new ArrayList<PooledConnection>();
+  /**请求计数**/
   protected long requestCount = 0;
   protected long accumulatedRequestTime = 0;
   protected long accumulatedCheckoutTime = 0;
