@@ -152,7 +152,7 @@ public class Configuration {
 
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection");
     /**
-     * 缓存
+     * 缓存集合
      */
   protected final Map<String, Cache> caches = new StrictMap<Cache>("Caches collection");
   protected final Map<String, ResultMap> resultMaps = new StrictMap<ResultMap>("Result Maps collection");
@@ -701,6 +701,10 @@ public class Configuration {
     return incompleteCacheRefs;
   }
 
+    /**
+     * 添加不完整的缓存引用
+     * @param incompleteCacheRef
+     */
   public void addIncompleteCacheRef(CacheRefResolver incompleteCacheRef) {
     incompleteCacheRefs.add(incompleteCacheRef);
   }
@@ -852,6 +856,10 @@ public class Configuration {
     }
   }
 
+  /**
+   * 绝对的Map
+   * @param <V>
+   */
   protected static class StrictMap<V> extends HashMap<String, V> {
 
     private static final long serialVersionUID = -4950446264854982944L;
@@ -877,27 +885,34 @@ public class Configuration {
       this.name = name;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public V put(String key, V value) {
+        //包含就抛错
       if (containsKey(key)) {
         throw new IllegalArgumentException(name + " already contains value for " + key);
       }
       if (key.contains(".")) {
         final String shortKey = getShortName(key);
         if (super.get(shortKey) == null) {
+            //当前值为空
           super.put(shortKey, value);
         } else {
+            //当前值存在
           super.put(shortKey, (V) new Ambiguity(shortKey));
         }
       }
       return super.put(key, value);
     }
 
+    @Override
     public V get(Object key) {
       V value = super.get(key);
+      //为空，抛错
       if (value == null) {
         throw new IllegalArgumentException(name + " does not contain value for " + key);
       }
+      //存在二义性抛错
       if (value instanceof Ambiguity) {
         throw new IllegalArgumentException(((Ambiguity) value).getSubject() + " is ambiguous in " + name
             + " (try using the full name including the namespace, or rename one of the entries)");
@@ -905,11 +920,15 @@ public class Configuration {
       return value;
     }
 
+    //简称
     private String getShortName(String key) {
       final String[] keyParts = key.split("\\.");
       return keyParts[keyParts.length - 1];
     }
 
+      /**
+       * 不精确的,存在二义性的
+       */
     protected static class Ambiguity {
       final private String subject;
 

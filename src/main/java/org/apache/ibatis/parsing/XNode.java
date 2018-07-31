@@ -73,6 +73,10 @@ public class XNode {
     return builder.toString();
   }
 
+    /**
+     * 默认名称为"_[xx]_[xxx]_[xxxx]"，依次迭代父类节点
+     * @return
+     */
   public String getValueBasedIdentifier() {
     StringBuilder builder = new StringBuilder();
     XNode current = this;
@@ -81,15 +85,15 @@ public class XNode {
         builder.insert(0, "_");
       }
       String value = current.getStringAttribute("id",
-          current.getStringAttribute("value",
-              current.getStringAttribute("property", null)));
+                     current.getStringAttribute("value",
+                     current.getStringAttribute("property", null)));
       if (value != null) {
         value = value.replace('.', '_');
         builder.insert(0, "]");
-        builder.insert(0,
-            value);
+        builder.insert(0, value);
         builder.insert(0, "[");
       }
+      //如果全部为空，则插入node名字
       builder.insert(0, current.getName());
       current = current.getParent();
     }

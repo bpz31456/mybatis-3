@@ -34,6 +34,7 @@ public class PerpetualCache implements Cache {
    */
   private Map<Object, Object> cache = new HashMap<Object, Object>();
 
+  /**传入ID**/
   public PerpetualCache(String id) {
     this.id = id;
   }
