@@ -26,7 +26,7 @@ import java.io.Reader;
 import java.util.Properties;
 
 /**
- *
+ * 创建者模式
  * Builds {@link SqlSession} instances.
  *
  * @author Clinton Begin

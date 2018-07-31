@@ -90,6 +90,7 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
+ * Mapper注解构建器
  * @author Clinton Begin
  */
 public class MapperAnnotationBuilder {
@@ -118,8 +119,15 @@ public class MapperAnnotationBuilder {
     sqlProviderAnnotationTypes.add(DeleteProvider.class);
   }
 
+    /**
+     * 解析
+     */
   public void parse() {
+    //interface cn.baopz.clazz.XxxMapper
     String resource = type.toString();
+      /**
+       * 不包含这个类型
+       */
     if (!configuration.isResourceLoaded(resource)) {
       loadXmlResource();
       configuration.addLoadedResource(resource);
@@ -156,6 +164,9 @@ public class MapperAnnotationBuilder {
     }
   }
 
+    /**
+     * 加载XmlResource
+     */
   private void loadXmlResource() {
     // Spring may not know the real resource name so we check a flag
     // to prevent loading again a resource twice

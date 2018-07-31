@@ -218,7 +218,9 @@ public class ResolverUtil<T> {
 
     try {
       List<String> children = VFS.getInstance().list(path);
+      //遍历package中所有的文件
       for (String child : children) {
+        //如果是.class结尾的
         if (child.endsWith(".class")) {
           addIfMatching(test, child);
         }
@@ -250,6 +252,7 @@ public class ResolverUtil<T> {
   @SuppressWarnings("unchecked")
   protected void addIfMatching(Test test, String fqn) {
     try {
+        //xxxx/xxx/xx/x.class => xxxx.xxx.xx.x.class
       String externalName = fqn.substring(0, fqn.indexOf('.')).replace('/', '.');
       ClassLoader loader = getClassLoader();
       if (log.isDebugEnabled()) {

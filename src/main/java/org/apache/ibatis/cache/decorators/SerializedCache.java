@@ -30,6 +30,7 @@ import org.apache.ibatis.cache.CacheException;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * 虚拟化缓存
  * @author Clinton Begin
  */
 public class SerializedCache implements Cache {
@@ -53,12 +54,18 @@ public class SerializedCache implements Cache {
   @Override
   public void putObject(Object key, Object object) {
     if (object == null || object instanceof Serializable) {
+        //通过序列化为byte[]保存到Cache中
       delegate.putObject(key, serialize((Serializable) object));
     } else {
       throw new CacheException("SharedCache failed to make a copy of a non-serializable object: " + object);
     }
   }
 
+    /**
+     * 得到值然后反序列化
+     * @param key The key
+     * @return
+     */
   @Override
   public Object getObject(Object key) {
     Object object = delegate.getObject(key);
@@ -90,6 +97,11 @@ public class SerializedCache implements Cache {
     return delegate.equals(obj);
   }
 
+    /**
+     * 序列化方法
+     * @param value
+     * @return
+     */
   private byte[] serialize(Serializable value) {
     try {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();

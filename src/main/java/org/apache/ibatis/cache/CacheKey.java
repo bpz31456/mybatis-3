@@ -22,6 +22,11 @@ import java.util.List;
 import org.apache.ibatis.reflection.ArrayUtil;
 
 /**
+ * 1.MappedStatement 的iD
+ * 2.指定查找结果集的范围
+ * 3.查询所使用的sql，可能包含?占位符
+ * 4.用户传递的实际参数
+ *
  * @author Clinton Begin
  */
 public class CacheKey implements Cloneable, Serializable {

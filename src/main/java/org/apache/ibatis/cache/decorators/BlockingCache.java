@@ -32,19 +32,31 @@ import org.apache.ibatis.cache.CacheException;
  * This way, other threads will wait until this element is filled instead of hitting the database.
  * 
  * @author Eduardo Macarron
+ * 阻塞版本的缓存器
  *
  */
 public class BlockingCache implements Cache {
 
   private long timeout;
   private final Cache delegate;
+    /**
+     * 放了多把锁
+     */
   private final ConcurrentHashMap<Object, ReentrantLock> locks;
 
+    /**
+     * 具体被装饰的Cache
+     * @param delegate
+     */
   public BlockingCache(Cache delegate) {
     this.delegate = delegate;
     this.locks = new ConcurrentHashMap<Object, ReentrantLock>();
   }
 
+    /**
+     * 缓存iD
+     * @return
+     */
   @Override
   public String getId() {
     return delegate.getId();
@@ -74,6 +86,11 @@ public class BlockingCache implements Cache {
     return value;
   }
 
+    /**
+     * 未实现
+     * @param key The key
+     * @return
+     */
   @Override
   public Object removeObject(Object key) {
     // despite of its name, this method is called only to release locks
@@ -90,17 +107,29 @@ public class BlockingCache implements Cache {
   public ReadWriteLock getReadWriteLock() {
     return null;
   }
-  
+
+    /**
+     * 根据Key得到锁，若没有则新建锁
+     * @param key
+     * @return
+     */
   private ReentrantLock getLockForKey(Object key) {
     ReentrantLock lock = new ReentrantLock();
     ReentrantLock previous = locks.putIfAbsent(key, lock);
     return previous == null ? lock : previous;
   }
-  
+
+    /**
+     * 得到锁
+     * @param key
+     */
   private void acquireLock(Object key) {
     Lock lock = getLockForKey(key);
     if (timeout > 0) {
       try {
+          /**
+           * 尝试锁住对象
+           */
         boolean acquired = lock.tryLock(timeout, TimeUnit.MILLISECONDS);
         if (!acquired) {
           throw new CacheException("Couldn't get a lock in " + timeout + " for the key " +  key + " at the cache " + delegate.getId());  
@@ -112,7 +141,11 @@ public class BlockingCache implements Cache {
       lock.lock();
     }
   }
-  
+
+    /**
+     * 释放锁
+     * @param key
+     */
   private void releaseLock(Object key) {
     ReentrantLock lock = locks.get(key);
     if (lock.isHeldByCurrentThread()) {

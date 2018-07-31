@@ -18,6 +18,7 @@ package org.apache.ibatis.plugin;
 import java.util.Properties;
 
 /**
+ * 插件中需要用的拦截器接口
  * @author Clinton Begin
  */
 public interface Interceptor {
@@ -26,6 +27,15 @@ public interface Interceptor {
 
   Object plugin(Object target);
 
+    /**
+     * 得到property name="someProperty" 的值
+     * <plugins>
+     *   <plugin interceptor="org.mybatis.example.ExamplePlugin">
+     *     <property name="someProperty" value="100"/>
+     *   </plugin>
+     * </plugins>
+     * @param properties
+     */
   void setProperties(Properties properties);
 
 }

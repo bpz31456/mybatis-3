@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 先进先出缓存
  * FIFO (first in, first out) cache decorator
  *
  * @author Clinton Begin
@@ -29,7 +30,9 @@ import org.apache.ibatis.cache.Cache;
 public class FifoCache implements Cache {
 
   private final Cache delegate;
+  /**双向队列**/
   private final Deque<Object> keyList;
+  /**长度**/
   private int size;
 
   public FifoCache(Cache delegate) {
@@ -54,7 +57,9 @@ public class FifoCache implements Cache {
 
   @Override
   public void putObject(Object key, Object value) {
+      //如果大于就删除第一个
     cycleKeyList(key);
+    //重新放入,1023+1 = 1024
     delegate.putObject(key, value);
   }
 
@@ -68,6 +73,9 @@ public class FifoCache implements Cache {
     return delegate.removeObject(key);
   }
 
+    /**
+     * 清空缓存
+     */
   @Override
   public void clear() {
     delegate.clear();
@@ -79,10 +87,18 @@ public class FifoCache implements Cache {
     return null;
   }
 
+    /**
+     *
+     * @param key
+     */
   private void cycleKeyList(Object key) {
+      //添加最后一个
     keyList.addLast(key);
+    //超出边界1025 > 1024
     if (keyList.size() > size) {
+        //删除第一个key,keyList.size = 1024
       Object oldestKey = keyList.removeFirst();
+      //Cache删除对象,1024-1 = 1023
       delegate.removeObject(oldestKey);
     }
   }

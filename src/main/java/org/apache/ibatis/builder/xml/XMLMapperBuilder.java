@@ -48,6 +48,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
 /**
+ * 解析XMLMapper配置文件(入口)
  * @author Clinton Begin
  */
 public class XMLMapperBuilder extends BaseBuilder {
@@ -74,13 +75,22 @@ public class XMLMapperBuilder extends BaseBuilder {
     this.builderAssistant.setCurrentNamespace(namespace);
   }
 
+    /**
+     * 扫描Mybatis.xml中，得到mapper是resource或url的入口
+     * @param inputStream
+     * @param configuration
+     * @param resource
+     * @param sqlFragments
+     */
   public XMLMapperBuilder(InputStream inputStream, Configuration configuration, String resource, Map<String, XNode> sqlFragments) {
+      //TODO 掉用了一个XPathParse来处理Maper.xml文件,里面带入了configuration.getVariables()变量，可以理解为在xxx.properties文件中配置的变量也可以被使用
     this(new XPathParser(inputStream, true, configuration.getVariables(), new XMLMapperEntityResolver()),
         configuration, resource, sqlFragments);
   }
 
   private XMLMapperBuilder(XPathParser parser, Configuration configuration, String resource, Map<String, XNode> sqlFragments) {
     super(configuration);
+    //MapperBuilder助理
     this.builderAssistant = new MapperBuilderAssistant(configuration, resource);
     this.parser = parser;
     this.sqlFragments = sqlFragments;
@@ -88,14 +98,21 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+      //是否记载过映射文件，"/mapper/xxx.xml"
     if (!configuration.isResourceLoaded(resource)) {
+        //对应的 XML文件的XPathParser来解析
       configurationElement(parser.evalNode("/mapper"));
+      //添加已经加载了的资源
       configuration.addLoadedResource(resource);
+      //绑定mapper到namespace
       bindMapperForNamespace();
     }
 
+    //处理configurationElement解析失败的<resultMap>
     parsePendingResultMaps();
+    //处理configurationElement解析失败的<cache-ref>
     parsePendingCacheRefs();
+    //处理configurationElement解析失败的SQL语句节点
     parsePendingStatements();
   }
 
@@ -103,6 +120,10 @@ public class XMLMapperBuilder extends BaseBuilder {
     return sqlFragments.get(refid);
   }
 
+    /**
+     * 解析mapper.xml
+     * @param context
+     */
   private void configurationElement(XNode context) {
     try {
       String namespace = context.getStringAttribute("namespace");
@@ -110,11 +131,17 @@ public class XMLMapperBuilder extends BaseBuilder {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
       builderAssistant.setCurrentNamespace(namespace);
+      //处理cache-ref节点
       cacheRefElement(context.evalNode("cache-ref"));
+      //处理cache节点
       cacheElement(context.evalNode("cache"));
+      //处理parameterMap节点
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
+      //处理resultMap节点
       resultMapElements(context.evalNodes("/mapper/resultMap"));
+      //处理sql节点
       sqlElement(context.evalNodes("/mapper/sql"));
+      //处理select|insert|update|delete节点
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);
@@ -186,7 +213,9 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void cacheRefElement(XNode context) {
     if (context != null) {
+        //缓存命名空间？
       configuration.addCacheRef(builderAssistant.getCurrentNamespace(), context.getStringAttribute("namespace"));
+      //
       CacheRefResolver cacheRefResolver = new CacheRefResolver(builderAssistant, context.getStringAttribute("namespace"));
       try {
         cacheRefResolver.resolveCacheRef();

@@ -24,15 +24,25 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 软引用
  * Soft Reference cache decorator
  * Thanks to Dr. Heinz Kabutz for his guidance here.
  *
  * @author Clinton Begin
  */
 public class SoftCache implements Cache {
+    /**
+     * 避免垃圾收集器硬链接
+     */
   private final Deque<Object> hardLinksToAvoidGarbageCollection;
+    /**
+     *垃圾收集的队列
+     */
   private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
   private final Cache delegate;
+    /**
+     * 硬链接
+     */
   private int numberOfHardLinks;
 
   public SoftCache(Cache delegate) {
@@ -58,12 +68,22 @@ public class SoftCache implements Cache {
     this.numberOfHardLinks = size;
   }
 
+    /**
+     * 放入key，value
+     * @param key
+     * @param value
+     */
   @Override
   public void putObject(Object key, Object value) {
     removeGarbageCollectedItems();
     delegate.putObject(key, new SoftEntry(key, value, queueOfGarbageCollectedEntries));
   }
 
+    /**
+     * 获取value
+     * @param key The key
+     * @return
+     */
   @Override
   public Object getObject(Object key) {
     Object result = null;
@@ -74,7 +94,7 @@ public class SoftCache implements Cache {
       if (result == null) {
         delegate.removeObject(key);
       } else {
-        // See #586 (and #335) modifications need more than a read lock 
+        // See #586 (and #335) modifications need more than a read lock
         synchronized (hardLinksToAvoidGarbageCollection) {
           hardLinksToAvoidGarbageCollection.addFirst(result);
           if (hardLinksToAvoidGarbageCollection.size() > numberOfHardLinks) {
@@ -106,6 +126,9 @@ public class SoftCache implements Cache {
     return null;
   }
 
+    /**
+     * 清除被GC的对象应用
+     */
   private void removeGarbageCollectedItems() {
     SoftEntry sv;
     while ((sv = (SoftEntry) queueOfGarbageCollectedEntries.poll()) != null) {
@@ -113,10 +136,16 @@ public class SoftCache implements Cache {
     }
   }
 
+    /**
+     * 软引用
+     */
   private static class SoftEntry extends SoftReference<Object> {
     private final Object key;
 
     SoftEntry(Object key, Object value, ReferenceQueue<Object> garbageCollectionQueue) {
+        /**
+         * Value对象与gcQueue建立连接
+         */
       super(value, garbageCollectionQueue);
       this.key = key;
     }

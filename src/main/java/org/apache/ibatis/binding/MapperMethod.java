@@ -36,20 +36,34 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 /**
+ * 具体执行者，对应一个Dao中的一个方法
  * @author Clinton Begin
  * @author Eduardo Macarron
  * @author Lasse Voss
  */
 public class MapperMethod {
 
+    /**
+     * 具体的Sql命令
+     */
   private final SqlCommand command;
+    /**
+     *方法签名
+     */
   private final MethodSignature method;
 
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
+
     this.command = new SqlCommand(config, mapperInterface, method);
     this.method = new MethodSignature(config, mapperInterface, method);
   }
 
+    /**
+     * 执行
+     * @param sqlSession
+     * @param args
+     * @return
+     */
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
     switch (command.getType()) {
@@ -213,11 +227,18 @@ public class MapperMethod {
     private final String name;
     private final SqlCommandType type;
 
+      /**
+       * 解析出具体的命令
+       * @param configuration
+       * @param mapperInterface
+       * @param method
+       */
     public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) {
       final String methodName = method.getName();
       final Class<?> declaringClass = method.getDeclaringClass();
-      MappedStatement ms = resolveMappedStatement(mapperInterface, methodName, declaringClass,
-          configuration);
+      //mapped声明
+      MappedStatement ms = resolveMappedStatement(mapperInterface, methodName, declaringClass,configuration);
+      //声明为null
       if (ms == null) {
         if (method.getAnnotation(Flush.class) != null) {
           name = null;
@@ -226,6 +247,7 @@ public class MapperMethod {
           throw new BindingException("Invalid bound statement (not found): "
               + mapperInterface.getName() + "." + methodName);
         }
+        //不为空
       } else {
         name = ms.getId();
         type = ms.getSqlCommandType();
@@ -243,11 +265,24 @@ public class MapperMethod {
       return type;
     }
 
+      /**
+       * 溶解Mapper声明
+       * @param mapperInterface
+       * @param methodName
+       * @param declaringClass
+       * @param configuration
+       * @return
+       */
     private MappedStatement resolveMappedStatement(Class<?> mapperInterface, String methodName,
         Class<?> declaringClass, Configuration configuration) {
+        /**
+         * interfaceName.methodName
+         */
       String statementId = mapperInterface.getName() + "." + methodName;
       if (configuration.hasStatement(statementId)) {
+          //返回方法声明
         return configuration.getMappedStatement(statementId);
+
       } else if (mapperInterface.equals(declaringClass)) {
         return null;
       }

@@ -18,6 +18,7 @@ package org.apache.ibatis.session;
 import java.sql.Connection;
 
 /**
+ * 事务隔离等级
  * @author Clinton Begin
  */
 public enum TransactionIsolationLevel {

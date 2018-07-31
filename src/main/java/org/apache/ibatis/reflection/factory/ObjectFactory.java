@@ -26,6 +26,9 @@ import java.util.Properties;
 public interface ObjectFactory {
 
   /**
+   * <objectFactory type="org.mybatis.example.ExampleObjectFactory">
+   *   <property name="someProperty" value="100"/>
+   * </objectFactory>
    * Sets configuration properties.
    * @param properties configuration properties
    */

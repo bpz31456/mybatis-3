@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 清除最近最少使用缓存
  * Lru (least recently used) cache decorator
  *
  * @author Clinton Begin
@@ -29,7 +30,9 @@ import org.apache.ibatis.cache.Cache;
 public class LruCache implements Cache {
 
   private final Cache delegate;
+  /**KeyMap，key使用情况**/
   private Map<Object, Object> keyMap;
+  /**使用最少的key**/
   private Object eldestKey;
 
   public LruCache(Cache delegate) {
@@ -47,14 +50,24 @@ public class LruCache implements Cache {
     return delegate.getSize();
   }
 
+    /**
+     * 初始化长度
+     * @param size
+     */
   public void setSize(final int size) {
     keyMap = new LinkedHashMap<Object, Object>(size, .75F, true) {
       private static final long serialVersionUID = 4267176411845948333L;
 
+        /**
+         * 清除逻辑，当put的时候
+         * @param eldest
+         * @return
+         */
       @Override
       protected boolean removeEldestEntry(Map.Entry<Object, Object> eldest) {
         boolean tooBig = size() > size;
         if (tooBig) {
+            //得到最老的值
           eldestKey = eldest.getKey();
         }
         return tooBig;
@@ -68,9 +81,15 @@ public class LruCache implements Cache {
     cycleKeyList(key);
   }
 
+    /**
+     * 调用了LinkedHashMap将key放到最近使用
+     * @param key The key
+     * @return
+     */
   @Override
   public Object getObject(Object key) {
-    keyMap.get(key); //touch
+      //touch
+    keyMap.get(key);
     return delegate.getObject(key);
   }
 
@@ -90,6 +109,10 @@ public class LruCache implements Cache {
     return null;
   }
 
+    /**
+     * 循环KeyList，清除老的
+     * @param key
+     */
   private void cycleKeyList(Object key) {
     keyMap.put(key, key);
     if (eldestKey != null) {

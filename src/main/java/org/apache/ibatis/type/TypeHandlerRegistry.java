@@ -461,8 +461,7 @@ public final class TypeHandlerRegistry {
     }
   }
 
-  // scan
-
+  // scan，包扫描
   public void register(String packageName) {
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<Class<?>>();
     resolverUtil.find(new ResolverUtil.IsA(TypeHandler.class), packageName);
