@@ -39,6 +39,9 @@ public class XMLMapperBuilder extends BaseBuilder {
 
     private final XPathParser parser;
     private final MapperBuilderAssistant builderAssistant;
+    /**
+     * SQL片段
+     */
     private final Map<String, XNode> sqlFragments;
     private final String resource;
 
@@ -134,6 +137,10 @@ public class XMLMapperBuilder extends BaseBuilder {
         }
     }
 
+    /**
+     * 构建声明，insert|update|delete|select
+     * @param list
+     */
     private void buildStatementFromContext(List<XNode> list) {
         if (configuration.getDatabaseId() != null) {
             buildStatementFromContext(list, configuration.getDatabaseId());
@@ -141,6 +148,11 @@ public class XMLMapperBuilder extends BaseBuilder {
         buildStatementFromContext(list, null);
     }
 
+    /**
+     * 构建声明
+     * @param list
+     * @param requiredDatabaseId
+     */
     private void buildStatementFromContext(List<XNode> list, String requiredDatabaseId) {
         for (XNode context : list) {
             final XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, builderAssistant, context, requiredDatabaseId);
@@ -368,7 +380,6 @@ public class XMLMapperBuilder extends BaseBuilder {
             }
         }
 
-
         /*
          * 根据resultMap节点信息加上（构造器、鉴别器以及其他子节点产生的resultMappings）得到的解析器
          *<resultMap id="" type="" autoMapping="true" extends=""></resultMap>
@@ -433,6 +444,11 @@ public class XMLMapperBuilder extends BaseBuilder {
         return builderAssistant.buildDiscriminator(resultType, column, javaTypeClass, jdbcTypeEnum, typeHandlerClass, discriminatorMap);
     }
 
+    /**
+     * SQL节点处理
+     * @param list
+     * @throws Exception
+     */
     private void sqlElement(List<XNode> list) throws Exception {
         if (configuration.getDatabaseId() != null) {
             sqlElement(list, configuration.getDatabaseId());
@@ -440,10 +456,19 @@ public class XMLMapperBuilder extends BaseBuilder {
         sqlElement(list, null);
     }
 
+    /**
+     * 添加SQL片段
+     * @param list
+     * @param requiredDatabaseId
+     * @throws Exception
+     */
     private void sqlElement(List<XNode> list, String requiredDatabaseId) throws Exception {
         for (XNode context : list) {
+            //方言
             String databaseId = context.getStringAttribute("databaseId");
+            //id,必须的一个属性
             String id = context.getStringAttribute("id");
+            //当前的nameSpace+id，如果id包含nameSpace，就直接返回
             id = builderAssistant.applyCurrentNamespace(id, false);
             if (databaseIdMatchesCurrent(id, databaseId, requiredDatabaseId)) {
                 sqlFragments.put(id, context);
@@ -451,6 +476,13 @@ public class XMLMapperBuilder extends BaseBuilder {
         }
     }
 
+    /**
+     * 更具方言得到确切的一套sql
+     * @param id
+     * @param databaseId
+     * @param requiredDatabaseId
+     * @return
+     */
     private boolean databaseIdMatchesCurrent(String id, String databaseId, String requiredDatabaseId) {
         if (requiredDatabaseId != null) {
             if (!requiredDatabaseId.equals(databaseId)) {

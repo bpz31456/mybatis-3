@@ -32,6 +32,7 @@ import java.util.Arrays;
 public class TypeParameterResolver {
 
   /**
+   * 返回属性类型
    * @return The field type as {@link Type}. If it has type parameters in the declaration,<br>
    *         they will be resolved to the actual runtime {@link Type}s.
    */
@@ -42,6 +43,7 @@ public class TypeParameterResolver {
   }
 
   /**
+   * 返回值类型
    * @return The return type of the method as {@link Type}. If it has type parameters in the declaration,<br>
    *         they will be resolved to the actual runtime {@link Type}s.
    */
@@ -52,6 +54,7 @@ public class TypeParameterResolver {
   }
 
   /**
+   * 参数类型
    * @return The parameter types of the method as an array of {@link Type}s. If they have type parameters in the declaration,<br>
    *         they will be resolved to the actual runtime {@link Type}s.
    */
@@ -65,13 +68,24 @@ public class TypeParameterResolver {
     return result;
   }
 
+    /**
+     * 具体解析类型的方法
+     * @param type
+     * @param srcType
+     * @param declaringClass
+     * @return
+     */
   private static Type resolveType(Type type, Type srcType, Class<?> declaringClass) {
+      //通用类型==》类型变量List<T>,T就是类型变量，在编译时被编译为正常类型
     if (type instanceof TypeVariable) {
       return resolveTypeVar((TypeVariable<?>) type, srcType, declaringClass);
+      //通用类型==》参数化类型 List<String>，String就是参数化的
     } else if (type instanceof ParameterizedType) {
       return resolveParameterizedType((ParameterizedType) type, srcType, declaringClass);
+      //通用类型==》一般的数组类型List<String>[],T[] 数组类型，数组元素是TypeVariable或Parameterized
     } else if (type instanceof GenericArrayType) {
       return resolveGenericArrayType((GenericArrayType) type, srcType, declaringClass);
+      //其他
     } else {
       return type;
     }
@@ -134,6 +148,13 @@ public class TypeParameterResolver {
     return result;
   }
 
+    /**
+     * 类型变量
+     * @param typeVar
+     * @param srcType
+     * @param declaringClass
+     * @return
+     */
   private static Type resolveTypeVar(TypeVariable<?> typeVar, Type srcType, Class<?> declaringClass) {
     Type result = null;
     Class<?> clazz = null;

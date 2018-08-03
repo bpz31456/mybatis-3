@@ -157,6 +157,9 @@ public class Configuration {
   protected final Map<String, Cache> caches = new StrictMap<Cache>("Caches collection");
   protected final Map<String, ResultMap> resultMaps = new StrictMap<ResultMap>("Result Maps collection");
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<ParameterMap>("Parameter Maps collection");
+  /**
+   * 每个MappedStatement都有可能有一个主键生成年器，so，这里的id就是spacename+MappedStatement.id得到的
+   */
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<KeyGenerator>("Key Generators collection");
 
     /**

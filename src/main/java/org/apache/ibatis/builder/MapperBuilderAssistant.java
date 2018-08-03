@@ -501,6 +501,11 @@ public class MapperBuilderAssistant extends BaseBuilder {
                 nestedResultMap, notNullColumn, columnPrefix, typeHandler, flags, null, null, configuration.isLazyLoadingEnabled());
     }
 
+    /**
+     * 得到语言驱动Class
+     * @param langClass
+     * @return
+     */
     public LanguageDriver getLanguageDriver(Class<?> langClass) {
         if (langClass != null) {
             configuration.getLanguageRegistry().register(langClass);
