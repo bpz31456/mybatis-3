@@ -29,10 +29,13 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 具体某一个Statement，select|insert|delete|update
  * @author Clinton Begin
  */
 public final class MappedStatement {
-
+    /**
+     * 节点中Id属性，包括命名空间
+     */
   private String resource;
   private Configuration configuration;
   private String id;
@@ -40,6 +43,9 @@ public final class MappedStatement {
   private Integer timeout;
   private StatementType statementType;
   private ResultSetType resultSetType;
+    /**
+     * Sql语句
+     */
   private SqlSource sqlSource;
   private Cache cache;
   private ParameterMap parameterMap;
@@ -53,7 +59,13 @@ public final class MappedStatement {
   private String[] keyColumns;
   private boolean hasNestedResultMaps;
   private String databaseId;
+    /**
+     * 日志
+     */
   private Log statementLog;
+    /**
+     * 语言解析方式？
+     */
   private LanguageDriver lang;
   private String[] resultSets;
 

@@ -23,6 +23,10 @@ import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.Configuration;
 
+/**
+ *解析 statement中的如<if></if><foreach></foreach><item></item>等脚本
+ * @author baopz
+ */
 public interface LanguageDriver {
 
   /**

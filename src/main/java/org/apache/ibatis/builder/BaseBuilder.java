@@ -30,6 +30,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
  * Mybatis.xml配置文件的构建器
+ * 所有构建器的父类，共享configuration，typeAliasRegistry，typeHandlerRegistry公共信息
  * @author Clinton Begin
  */
 public abstract class BaseBuilder {

@@ -38,7 +38,6 @@ import java.util.concurrent.locks.ReadWriteLock;
  * 缓存接口
  * @author Clinton Begin
  */
-
 public interface Cache {
 
   /**

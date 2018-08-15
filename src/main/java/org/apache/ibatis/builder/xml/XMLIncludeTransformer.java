@@ -30,7 +30,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * XML引入翻译
+ * XML include 翻译
+ * <sql id="userColumns"> ${alias}.id,${alias}.username,${alias}.password </sql>
+ * <include refid="userColumns"><property name="alias" value="t1"/></include>,
  * @author Frank D. Martinez [mnesarco]
  */
 public class XMLIncludeTransformer {
@@ -57,6 +59,7 @@ public class XMLIncludeTransformer {
   }
 
   /**
+   * <include></include>标签中的文本内容和参数被解析，但是<if></if><foreach></foreach>等标签没有被解析，需要留到langDriver.createSqlSource中解析
    * Recursively apply includes through all SQL fragments.
    * @param source Include node in DOM tree
    * @param variablesContext Current context for static variables with values，在mybatis.xml文件中配置的值，替换节点中的属性值，文本值
@@ -68,10 +71,12 @@ public class XMLIncludeTransformer {
         //查找是否存在以有的Include代码片段
       Node toInclude = findSqlFragment(getStringAttribute(source, "refid"), variablesContext);
       Properties toIncludeContext = getVariablesContext(source, variablesContext);
+      //<sql>中也可能调用<include>
       applyIncludes(toInclude, toIncludeContext, true);
       if (toInclude.getOwnerDocument() != source.getOwnerDocument()) {
         toInclude = source.getOwnerDocument().importNode(toInclude, true);
       }
+
       source.getParentNode().replaceChild(toInclude, source);
       while (toInclude.hasChildNodes()) {
         toInclude.getParentNode().insertBefore(toInclude.getFirstChild(), toInclude);

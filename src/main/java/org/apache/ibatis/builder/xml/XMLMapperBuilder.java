@@ -95,7 +95,7 @@ public class XMLMapperBuilder extends BaseBuilder {
             //绑定mapper到namespace
             bindMapperForNamespace();
         }
-
+        //TODO 因为在mapper.xml的解析中，是由上到下的解析过程，如果先解析的片段应用了后解析的片段，则会失败。
         //处理configurationElement解析失败的<resultMap>
         parsePendingResultMaps();
         //处理configurationElement解析失败的<cache-ref>
@@ -562,6 +562,9 @@ public class XMLMapperBuilder extends BaseBuilder {
         return null;
     }
 
+    /**
+     * 绑定Mapper(DAO)和Namespace
+     */
     private void bindMapperForNamespace() {
         String namespace = builderAssistant.getCurrentNamespace();
         if (namespace != null) {
@@ -577,6 +580,7 @@ public class XMLMapperBuilder extends BaseBuilder {
                     // to prevent loading again this resource from the mapper interface
                     // look at MapperAnnotationBuilder#loadXmlResource
                     configuration.addLoadedResource("namespace:" + namespace);
+                    //mapper（dao）注册
                     configuration.addMapper(boundType);
                 }
             }

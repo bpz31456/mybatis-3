@@ -126,19 +126,23 @@ public class MapperAnnotationBuilder {
     //interface cn.baopz.clazz.XxxMapper
     String resource = type.toString();
       /**
-       * 不包含这个类型
+       * 是否加载过这个接口
        */
     if (!configuration.isResourceLoaded(resource)) {
+      //解析maper.xml文件
       loadXmlResource();
       configuration.addLoadedResource(resource);
       assistant.setCurrentNamespace(type.getName());
+      //解析注解@CacheNamespace
       parseCache();
+      //解析注解@CacheNamespaceRef
       parseCacheRef();
       Method[] methods = type.getMethods();
       for (Method method : methods) {
         try {
-          // issue #237
+          // issue #237,桥接方法
           if (!method.isBridge()) {
+              //解析@SelectKey,@ResultMap
             parseStatement(method);
           }
         } catch (IncompleteElementException e) {
