@@ -28,7 +28,16 @@ import org.apache.ibatis.builder.BuilderException;
  */
 public class ExpressionEvaluator {
 
+    /**
+     * 表达式和参数进行比较
+     * @param expression
+     * @param parameterObject
+     * @return
+     */
   public boolean evaluateBoolean(String expression, Object parameterObject) {
+      /**
+       * test中得到表达式的值
+       */
     Object value = OgnlCache.getValue(expression, parameterObject);
     if (value instanceof Boolean) {
       return (Boolean) value;
@@ -44,9 +53,11 @@ public class ExpressionEvaluator {
     if (value == null) {
       throw new BuilderException("The expression '" + expression + "' evaluated to a null value.");
     }
+    //迭代器,List，set
     if (value instanceof Iterable) {
       return (Iterable<?>) value;
     }
+    //数组
     if (value.getClass().isArray()) {
         // the array may be primitive, so Arrays.asList() may throw
         // a ClassCastException (issue 209).  Do the work manually
@@ -59,6 +70,7 @@ public class ExpressionEvaluator {
         }
         return answer;
     }
+    //map
     if (value instanceof Map) {
       return ((Map) value).entrySet();
     }

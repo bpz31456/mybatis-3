@@ -25,16 +25,26 @@ import java.util.StringTokenizer;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 修剪sql节点，包括where，set
  * @author Clinton Begin
  */
 public class TrimSqlNode implements SqlNode {
 
-  private final SqlNode contents;
-  private final String prefix;
-  private final String suffix;
-  private final List<String> prefixesToOverride;
-  private final List<String> suffixesToOverride;
-  private final Configuration configuration;
+    //trim 中的属性
+
+    /**
+     * 前缀
+     */
+    private final String prefix;
+    /**
+     * 后缀
+     */
+    private final String suffix;
+    private final List<String> prefixesToOverride;
+    private final List<String> suffixesToOverride;
+
+    private final SqlNode contents;
+    private final Configuration configuration;
 
   public TrimSqlNode(Configuration configuration, SqlNode contents, String prefix, String prefixesToOverride, String suffix, String suffixesToOverride) {
     this(configuration, contents, prefix, parseOverrides(prefixesToOverride), suffix, parseOverrides(suffixesToOverride));

@@ -23,6 +23,7 @@ import org.apache.ibatis.scripting.ScriptingException;
 import org.apache.ibatis.type.SimpleTypeRegistry;
 
 /**
+ *包含${}语法的的sql节点
  * @author Clinton Begin
  */
 public class TextSqlNode implements SqlNode {
@@ -37,7 +38,11 @@ public class TextSqlNode implements SqlNode {
     this.text = text;
     this.injectionFilter = injectionFilter;
   }
-  
+
+    /**
+     * 判断是否为动态
+     * @return
+     */
   public boolean isDynamic() {
     DynamicCheckerTokenParser checker = new DynamicCheckerTokenParser();
     GenericTokenParser parser = createParser(checker);
@@ -47,15 +52,25 @@ public class TextSqlNode implements SqlNode {
 
   @Override
   public boolean apply(DynamicContext context) {
+      //创建解析器，直接解析${}替换为传入的参数
     GenericTokenParser parser = createParser(new BindingTokenParser(context, injectionFilter));
+    //添加到代码片段上
     context.appendSql(parser.parse(text));
     return true;
   }
-  
+
+    /**
+     * 解析${}占位符
+     * @param handler
+     * @return
+     */
   private GenericTokenParser createParser(TokenHandler handler) {
     return new GenericTokenParser("${", "}", handler);
   }
 
+    /**
+     * 绑定token解析
+     */
   private static class BindingTokenParser implements TokenHandler {
 
     private DynamicContext context;
@@ -68,12 +83,14 @@ public class TextSqlNode implements SqlNode {
 
     @Override
     public String handleToken(String content) {
+        //得到用户传入的阐述
       Object parameter = context.getBindings().get("_parameter");
       if (parameter == null) {
         context.getBindings().put("value", null);
       } else if (SimpleTypeRegistry.isSimpleType(parameter.getClass())) {
         context.getBindings().put("value", parameter);
       }
+      //通过OGNL解析content的值
       Object value = OgnlCache.getValue(content, context.getBindings());
       String srtValue = (value == null ? "" : String.valueOf(value)); // issue #274 return "" instead of "null"
       checkInjection(srtValue);
@@ -86,7 +103,10 @@ public class TextSqlNode implements SqlNode {
       }
     }
   }
-  
+
+    /**
+     * 动态检测令牌解析
+     */
   private static class DynamicCheckerTokenParser implements TokenHandler {
 
     private boolean isDynamic;

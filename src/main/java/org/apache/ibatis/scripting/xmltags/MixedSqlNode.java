@@ -18,6 +18,7 @@ package org.apache.ibatis.scripting.xmltags;
 import java.util.List;
 
 /**
+ * 混合sql
  * @author Clinton Begin
  */
 public class MixedSqlNode implements SqlNode {

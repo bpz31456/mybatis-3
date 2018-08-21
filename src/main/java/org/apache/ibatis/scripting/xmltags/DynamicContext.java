@@ -27,6 +27,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 解析动态sql后的片段
  * @author Clinton Begin
  */
 public class DynamicContext {
@@ -44,6 +45,7 @@ public class DynamicContext {
 
   public DynamicContext(Configuration configuration, Object parameterObject) {
     if (parameterObject != null && !(parameterObject instanceof Map)) {
+        //封装为一个MetaObject，对于非map对象的分装为一个Map对象
       MetaObject metaObject = configuration.newMetaObject(parameterObject);
       bindings = new ContextMap(metaObject);
     } else {
@@ -61,11 +63,19 @@ public class DynamicContext {
     bindings.put(name, value);
   }
 
+    /**
+     * 追加sql
+     * @param sql
+     */
   public void appendSql(String sql) {
     sqlBuilder.append(sql);
     sqlBuilder.append(" ");
   }
 
+    /**
+     * 返回sql
+     * @return
+     */
   public String getSql() {
     return sqlBuilder.toString().trim();
   }
@@ -74,6 +84,9 @@ public class DynamicContext {
     return uniqueNumber++;
   }
 
+    /**
+     * 内容map，继承map
+     */
   static class ContextMap extends HashMap<String, Object> {
     private static final long serialVersionUID = 2977601501966151582L;
 
@@ -98,6 +111,9 @@ public class DynamicContext {
     }
   }
 
+    /**
+     * 内容访问器
+     */
   static class ContextAccessor implements PropertyAccessor {
 
     @Override

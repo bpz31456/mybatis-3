@@ -22,10 +22,13 @@ import org.apache.ibatis.parsing.TokenHandler;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * foreach节点
  * @author Clinton Begin
  */
 public class ForEachSqlNode implements SqlNode {
   public static final String ITEM_PREFIX = "__frch_";
+
+  //表达式中的属性
 
   private final ExpressionEvaluator evaluator;
   private final String collectionExpression;
@@ -33,8 +36,8 @@ public class ForEachSqlNode implements SqlNode {
   private final String open;
   private final String close;
   private final String separator;
-  private final String item;
-  private final String index;
+    private final String index;
+    private final String item;
   private final Configuration configuration;
 
   public ForEachSqlNode(Configuration configuration, SqlNode contents, String collectionExpression, String index, String item, String open, String close, String separator) {
